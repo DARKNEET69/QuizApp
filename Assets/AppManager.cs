@@ -19,13 +19,13 @@ public class AppManager : MonoBehaviour
     private int quizIndex = 0;
     private double result = 0;
     private int questionNumber = 0;
-    private string rightAnswer = "";   
+    private int rightAnswer = 0;   
 
     public class QuizQuestion
     {
         public string Question;
-        public string Type;
-        public string RightAnswer;
+        public int Type;
+        public int RightAnswer;
         public string AnswerA;
         public string AnswerB;
         public string AnswerC;
@@ -58,9 +58,9 @@ public class AppManager : MonoBehaviour
             for (int j = 0; j < questionCount; j++)
             {
                 QuizQuestionsList.Add(new QuizQuestion());
-                QuizQuestionsList[j].Question = data[(j + 1) * 7 + 0];
-                QuizQuestionsList[j].Type = data[(j + 1) * 7 + 1];
-                QuizQuestionsList[j].RightAnswer = data[(j + 1) * 7 + 2];
+                QuizQuestionsList[j].Type = int.Parse(data[(j + 1) * 7 + 0]);
+                QuizQuestionsList[j].Question = data[(j + 1) * 7 + 1];                
+                QuizQuestionsList[j].RightAnswer = int.Parse(data[(j + 1) * 7 + 2]);
                 QuizQuestionsList[j].AnswerA = data[(j + 1) * 7 + 3];
                 QuizQuestionsList[j].AnswerB = data[(j + 1) * 7 + 4];
                 QuizQuestionsList[j].AnswerC = data[(j + 1) * 7 + 5];
@@ -92,6 +92,7 @@ public class AppManager : MonoBehaviour
         else
         {
             ChangePage(2);
+            print(result);
             ResultText.text = "ÏÐÀÂÈËÜÍÛÕ ÎÒÂÅÒÎÂ: " + (result / QuizQuestionsList.Count * 100) + "%";
         }
     }
@@ -112,26 +113,10 @@ public class AppManager : MonoBehaviour
 
     public void CheckRightAnswer(int AnswerButtonIndex)
     {
-        string answerText = "";
-        switch (AnswerButtonIndex)
-        {
-            case 0:
-                answerText = AnswerTextA.text;
-                break;
-            case 1:
-                answerText = AnswerTextB.text;
-                break;
-            case 2:
-                answerText = AnswerTextC.text;
-                break;
-            case 3:
-                answerText = AnswerTextD.text;
-                break;
-        }
-        if (answerText == rightAnswer) result++;
-        questionNumber++;
-        ChangeQuestion(questionNumber);
+        if (AnswerButtonIndex == rightAnswer) result++;
         
+        questionNumber++;
+        ChangeQuestion(questionNumber);        
     }
 
     public void ToMenu()
