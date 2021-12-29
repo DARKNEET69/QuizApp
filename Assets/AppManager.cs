@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.IO;
 
 public class AppManager : MonoBehaviour
 {
-    public Dropdown TestDropdown;
+    public Dropdown QuizDropdown;
     public GameObject Pages;
 
     public Text QuestionText;
@@ -15,15 +16,61 @@ public class AppManager : MonoBehaviour
     public Text AnswerTextD;
     public Text ResultText;
 
-    private int testIndex = 0;
+    private int quizIndex = 0;
     private double result = 0;
     private int questionNumber = 0;
-    private string rightAnswer = "";
+    private string rightAnswer = "";   
+
+    public class QuizQuestion
+    {
+        public string Question;
+        public string Type;
+        public string RightAnswer;
+        public string AnswerA;
+        public string AnswerB;
+        public string AnswerC;
+        public string AnswerD;
+    }
+
+    public List<QuizQuestion> QuizQuestionsList = new List<QuizQuestion>();    
 
     void Start()
     {
+        ReadCSV();
         ToMenu();
-    }    
+    }
+
+    private void ReadCSV()
+    {
+        QuizDropdown.ClearOptions();
+        string[] quizFilesPaths = Directory.GetFiles(Application.dataPath + "/Resources/QuizDB", "*.csv");
+        List<string> quizDropdownOptions = new List<string>();
+
+        
+
+        for (int i = 0; i < quizFilesPaths.Length; i++)
+        {
+            quizDropdownOptions.Add(Path.GetFileNameWithoutExtension(quizFilesPaths[i]));            
+            var quizDb = Resources.Load("QuizDB/" + Path.GetFileNameWithoutExtension(quizFilesPaths[i])) as TextAsset;
+            string[] data = quizDb.text.Split(new string[] { ";", "\n"}, System.StringSplitOptions.None);
+            int questionCount = data.Length / 7 - 1;
+
+            for (int j = 0; j < questionCount; j++)
+            {
+                QuizQuestionsList.Add(new QuizQuestion());
+                QuizQuestionsList[j].Question = data[(j + 1) * 7 + 0];
+                QuizQuestionsList[j].Type = data[(j + 1) * 7 + 1];
+                QuizQuestionsList[j].RightAnswer = data[(j + 1) * 7 + 2];
+                QuizQuestionsList[j].AnswerA = data[(j + 1) * 7 + 3];
+                QuizQuestionsList[j].AnswerB = data[(j + 1) * 7 + 4];
+                QuizQuestionsList[j].AnswerC = data[(j + 1) * 7 + 5];
+                QuizQuestionsList[j].AnswerD = data[(j + 1) * 7 + 6];
+            }
+            
+        }
+
+        QuizDropdown.AddOptions(quizDropdownOptions);        
+    }
 
     public void RunTest()
     {
@@ -33,25 +80,25 @@ public class AppManager : MonoBehaviour
 
     public void ChangeQuestion(int number)
     {
-        if (number < testsArray[testIndex].GetUpperBound(0) + 1)
+        if (number < QuizQuestionsList.Count)
         {
-            QuestionText.text = testsArray[testIndex][number, 0];
-            AnswerTextA.text = testsArray[testIndex][number, 1];
-            AnswerTextB.text = testsArray[testIndex][number, 2];
-            AnswerTextC.text = testsArray[testIndex][number, 3];
-            AnswerTextD.text = testsArray[testIndex][number, 4];
-            rightAnswer = testsArray[testIndex][number, 5];
+            QuestionText.text = QuizQuestionsList[number].Question;
+            rightAnswer = QuizQuestionsList[number].RightAnswer;
+            AnswerTextA.text = QuizQuestionsList[number].AnswerA;
+            AnswerTextB.text = QuizQuestionsList[number].AnswerB;
+            AnswerTextC.text = QuizQuestionsList[number].AnswerC;
+            AnswerTextD.text = QuizQuestionsList[number].AnswerD;
         }
         else
         {
             ChangePage(2);
-            ResultText.text = "ÏÐÀÂÈËÜÍÛÕ ÎÒÂÅÒÎÂ: " + (result / (testsArray[testIndex].GetUpperBound(0) + 1) * 100) + "%";
+            ResultText.text = "ÏÐÀÂÈËÜÍÛÕ ÎÒÂÅÒÎÂ: " + (result / QuizQuestionsList.Count * 100) + "%";
         }
     }
 
     public void ChangeTest()
     {
-        testIndex = TestDropdown.value;
+        quizIndex = QuizDropdown.value;
     }
 
     private void ChangePage(int pageIndex)
@@ -84,6 +131,7 @@ public class AppManager : MonoBehaviour
         if (answerText == rightAnswer) result++;
         questionNumber++;
         ChangeQuestion(questionNumber);
+        
     }
 
     public void ToMenu()
@@ -93,26 +141,5 @@ public class AppManager : MonoBehaviour
         questionNumber = 0;
 }
 
-    //Áëîê òåñòîâ
-    string[][,] testsArray = new string[3][,]
-    {
-        new string[,] 
-        {
-            {"You are gay?1", "Yes", "No", "Maybe", "Never", "Yes"},
-            {"You are lie?", "Yes", "No", "Maybe", "Never", "Yes"},
-            {"You are student of politech?", "Yes", "No", "Maybe", "Never", "Yes"}
-        },
-        new string[,] 
-        {
-            {"You are gay?2", "Yes", "No", "Maybe", "Never", "Yes"},
-            {"You are lie?", "Yes", "No", "Maybe", "Never", "Yes"},
-            {"You are student of politech?", "Yes", "No", "Maybe", "Never", "Yes"}
-        },
-        new string[,]
-        {
-            {"You are gay?3", "Yes", "No", "Maybe", "Never", "Yes"},
-            {"You are lie?", "Yes", "No", "Maybe", "Never", "Yes"},
-            {"You are student of politech?", "Yes", "No", "Maybe", "Never", "Yes"}
-        },
-    };
+    
 }
