@@ -364,7 +364,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2729521dea735504388f9d1e1a0fc3d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TestDropdown: {fileID: 1277246501}
+  QuizDropdown: {fileID: 1277246501}
   Pages: {fileID: 793479973}
   QuestionText: {fileID: 1342990028}
   AnswerTextA: {fileID: 1377813180}
@@ -372,6 +372,10 @@ MonoBehaviour:
   AnswerTextC: {fileID: 1454498639}
   AnswerTextD: {fileID: 865403684}
   ResultText: {fileID: 1129388620}
+  quizIndex: 0
+  result: 0
+  questionNumber: 0
+  rightAnswer: 
 --- !u!4 &91641681
 Transform:
   m_ObjectHideFlags: 0
