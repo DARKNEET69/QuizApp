@@ -16,10 +16,14 @@ public class AppManager : MonoBehaviour
     public Text AnswerTextD;
     public Text ResultText;
 
-    private int quizIndex = 0;
-    private double result = 0;
+    private int quizID = 0;
+    private float result = 0;
     private int questionNumber = 0;
-    private int rightAnswer = 0;   
+    private int rightAnswer = 0;
+
+    private string[] quizFilesPaths;
+    private List<string> quizDropdownOptions = new List<string>();
+    private List<QuizQuestion> QuizQuestionsList = new List<QuizQuestion>();
 
     public class QuizQuestion
     {
@@ -32,48 +36,49 @@ public class AppManager : MonoBehaviour
         public string AnswerD;
     }
 
-    public List<QuizQuestion> QuizQuestionsList = new List<QuizQuestion>();    
-
-    void Start()
-    {
-        ReadCSV();
+    private void Start()
+    {        
         ToMenu();
+        LoadQuizNames();
     }
 
-    private void ReadCSV()
+    public void LoadQuizNames()
     {
         QuizDropdown.ClearOptions();
-        string[] quizFilesPaths = Directory.GetFiles(Application.dataPath + "/Resources/QuizDB", "*.csv");
-        List<string> quizDropdownOptions = new List<string>();
-
-        
+        quizFilesPaths = Directory.GetFiles(Application.dataPath + "/Resources/QuizDB", "*.csv");
 
         for (int i = 0; i < quizFilesPaths.Length; i++)
         {
-            quizDropdownOptions.Add(Path.GetFileNameWithoutExtension(quizFilesPaths[i]));            
-            var quizDb = Resources.Load("QuizDB/" + Path.GetFileNameWithoutExtension(quizFilesPaths[i])) as TextAsset;
-            string[] data = quizDb.text.Split(new string[] { ";", "\n"}, System.StringSplitOptions.None);
-            int questionCount = data.Length / 7 - 1;
-
-            for (int j = 0; j < questionCount; j++)
-            {
-                QuizQuestionsList.Add(new QuizQuestion());
-                QuizQuestionsList[j].Type = int.Parse(data[(j + 1) * 7 + 0]);
-                QuizQuestionsList[j].Question = data[(j + 1) * 7 + 1];                
-                QuizQuestionsList[j].RightAnswer = int.Parse(data[(j + 1) * 7 + 2]);
-                QuizQuestionsList[j].AnswerA = data[(j + 1) * 7 + 3];
-                QuizQuestionsList[j].AnswerB = data[(j + 1) * 7 + 4];
-                QuizQuestionsList[j].AnswerC = data[(j + 1) * 7 + 5];
-                QuizQuestionsList[j].AnswerD = data[(j + 1) * 7 + 6];
-            }
-            
+            quizDropdownOptions.Add(Path.GetFileNameWithoutExtension(quizFilesPaths[i]));
         }
 
-        QuizDropdown.AddOptions(quizDropdownOptions);        
+        QuizDropdown.AddOptions(quizDropdownOptions);
+    }
+
+    public void ReadCSV(int fileID)
+    {
+        var quizDb = Resources.Load("QuizDB/" + Path.GetFileNameWithoutExtension(quizFilesPaths[fileID])) as TextAsset;
+        string[] data = quizDb.text.Split(new string[] { ";", "\n" }, System.StringSplitOptions.None);
+        QuizQuestionsList.Clear();
+        int questionCount = data.Length / 7 - 1;
+
+        for (int i = 0; i < questionCount; i++)
+        {
+            QuizQuestionsList.Add(new QuizQuestion());
+            QuizQuestionsList[i].Type = int.Parse(data[(i + 1) * 7 + 0]);
+            QuizQuestionsList[i].Question = data[(i + 1) * 7 + 1];
+            QuizQuestionsList[i].RightAnswer = int.Parse(data[(i + 1) * 7 + 2]);
+            QuizQuestionsList[i].AnswerA = data[(i + 1) * 7 + 3];
+            QuizQuestionsList[i].AnswerB = data[(i + 1) * 7 + 4];
+            QuizQuestionsList[i].AnswerC = data[(i + 1) * 7 + 5];
+            QuizQuestionsList[i].AnswerD = data[(i + 1) * 7 + 6];
+        }
     }
 
     public void RunTest()
     {
+        quizID = QuizDropdown.value;
+        ReadCSV(quizID);
         ChangePage(1);
         ChangeQuestion(0);
     }
@@ -92,14 +97,8 @@ public class AppManager : MonoBehaviour
         else
         {
             ChangePage(2);
-            print(result);
-            ResultText.text = "ÏÐÀÂÈËÜÍÛÕ ÎÒÂÅÒÎÂ: " + (result / QuizQuestionsList.Count * 100) + "%";
+            ResultText.text = "ÏÐÀÂÈËÜÍÛÕ ÎÒÂÅÒÎÂ: " + Mathf.Round(result / QuizQuestionsList.Count * 100) + "%";
         }
-    }
-
-    public void ChangeTest()
-    {
-        quizIndex = QuizDropdown.value;
     }
 
     private void ChangePage(int pageIndex)
@@ -108,6 +107,7 @@ public class AppManager : MonoBehaviour
         {
             Pages.transform.GetChild(i).gameObject.SetActive(false);
         }
+
         Pages.transform.GetChild(pageIndex).gameObject.SetActive(true);
     }
 
@@ -124,7 +124,6 @@ public class AppManager : MonoBehaviour
         ChangePage(0);
         result = 0;
         questionNumber = 0;
-}
+    }
 
-    
 }
