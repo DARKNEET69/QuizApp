@@ -97,7 +97,7 @@ public class AppManager : MonoBehaviour
         else
         {
             ChangePage(2);
-            ResultText.text = "ÏĞÀÂÈËÜÍÛÕ ÎÒÂÅÒÎÂ: " + Mathf.Round(result / QuizQuestionsList.Count * 100) + "%";
+            ResultText.text = "ĞŸĞ ĞĞ’Ğ˜Ğ›Ğ¬ĞĞ«Ğ¥ ĞĞ¢Ğ’Ğ•Ğ¢ĞĞ’: " + Mathf.Round(result / QuizQuestionsList.Count * 100) + "%";
         }
     }
 
